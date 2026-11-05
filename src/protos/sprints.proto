@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package jira.sprints.v1;
+
+option go_package = "jira-contracts/gen/go/sprints/v1;sprintsv1";
+option csharp_namespace = "JiraAi.Contracts.Sprints.V1";
+
+enum SprintStatus {
+  SPRINT_STATUS_UNSPECIFIED = 0;
+  SPRINT_STATUS_PLANNED = 1;
+  SPRINT_STATUS_ACTIVE = 2;
+  SPRINT_STATUS_COMPLETED = 3;
+  SPRINT_STATUS_CANCELLED = 4;
+}
+
+enum AlertType {
+  ALERT_TYPE_UNSPECIFIED = 0;
+  ALERT_TYPE_SCOPE_CREEP = 1;
+  ALERT_TYPE_VELOCITY_DEFICIT = 2;
+  ALERT_TYPE_BOTTLENECK_DETECTED = 3;
+}
+
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  ALERT_SEVERITY_INFO = 1;
+  ALERT_SEVERITY_WARNING = 2;
+  ALERT_SEVERITY_CRITICAL = 3;
+}
+
+message Sprint {
+  string id = 1;
+  string project_id = 2;
+  string name = 3;
+  string goal = 4;
+  int64 start_date = 5;
+  int64 end_date = 6;
+  SprintStatus status = 7;
+  int32 total_story_points = 8;
+  int32 completed_story_points = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
+message CreateSprintRequest {
+  string project_id = 1;
+  string name = 2;
+  string goal = 3;
+  int64 start_date = 4;
+  int64 end_date = 5;
+}
+
+message CreateSprintResponse {
+  Sprint sprint = 1;
+}
+
+message GetSprintRequest {
+  string id = 1;
+}
+
+message GetSprintResponse {
+  Sprint sprint = 1;
+}
+
+message ListSprintsRequest {
+  string project_id = 1;
+  SprintStatus status = 2;
+}
+
+message ListSprintsResponse {
+  repeated Sprint sprints = 1;
+}
+
+message StartSprintRequest {
+  string id = 1;
+}
+
+message StartSprintResponse {
+  Sprint sprint = 1;
+}
+
+message CompleteSprintRequest {
+  string id = 1;
+}
+
+message CompleteSprintResponse {
+  Sprint sprint = 1;
+}
+
+message SprintAlert {
+  string id = 1;
+  string sprint_id = 2;
+  AlertType type = 3;
+  AlertSeverity severity = 4;
+  string message = 5;
+  string recommendation = 6;
+  int64 timestamp = 7;
+}
+
+message TriggerSprintAlertRequest {
+  string sprint_id = 1;
+  AlertType type = 2;
+  AlertSeverity severity = 3;
+  string message = 4;
+  string recommendation = 5;
+}
+
+message TriggerSprintAlertResponse {
+  bool acknowledged = 1;
+  string alert_id = 2;
+}
+
+service SprintService {
+  rpc CreateSprint(CreateSprintRequest) returns (CreateSprintResponse);
+  rpc GetSprint(GetSprintRequest) returns (GetSprintResponse);
+  rpc ListSprints(ListSprintsRequest) returns (ListSprintsResponse);
+  rpc StartSprint(StartSprintRequest) returns (StartSprintResponse);
+  rpc CompleteSprint(CompleteSprintRequest) returns (CompleteSprintResponse);
+}
+
+service AlertService {
+  rpc TriggerSprintAlert(TriggerSprintAlertRequest) returns (TriggerSprintAlertResponse);
+}

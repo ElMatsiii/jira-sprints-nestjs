@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package jira.issues.v1;
+
+option go_package = "jira-contracts/gen/go/issues/v1;issuesv1";
+option csharp_namespace = "JiraAi.Contracts.Issues.V1";
+
+enum IssueStatus {
+  ISSUE_STATUS_UNSPECIFIED = 0;
+  ISSUE_STATUS_TODO = 1;
+  ISSUE_STATUS_IN_PROGRESS = 2;
+  ISSUE_STATUS_IN_REVIEW = 3;
+  ISSUE_STATUS_DONE = 4;
+}
+
+enum IssuePriority {
+  ISSUE_PRIORITY_UNSPECIFIED = 0;
+  ISSUE_PRIORITY_LOW = 1;
+  ISSUE_PRIORITY_MEDIUM = 2;
+  ISSUE_PRIORITY_HIGH = 3;
+  ISSUE_PRIORITY_CRITICAL = 4;
+}
+
+enum IssueType {
+  ISSUE_TYPE_UNSPECIFIED = 0;
+  ISSUE_TYPE_STORY = 1;
+  ISSUE_TYPE_TASK = 2;
+  ISSUE_TYPE_BUG = 3;
+  ISSUE_TYPE_EPIC = 4;
+}
+
+message Issue {
+  string id = 1;
+  string key = 2;
+  string project_id = 3;
+  string title = 4;
+  string description = 5;
+  IssueStatus status = 6;
+  IssuePriority priority = 7;
+  IssueType type = 8;
+  int32 story_points = 9;
+  string sprint_id = 10;
+  string assignee_id = 11;
+  string reporter_id = 12;
+  string acceptance_criteria = 13;
+  int64 created_at = 14;
+  int64 updated_at = 15;
+}
+
+message CreateIssueRequest {
+  string project_id = 1;
+  string title = 2;
+  string description = 3;
+  IssuePriority priority = 4;
+  IssueType type = 5;
+  int32 story_points = 6;
+  string sprint_id = 7;
+  string assignee_id = 8;
+  string reporter_id = 9;
+  string acceptance_criteria = 10;
+}
+
+message CreateIssueResponse {
+  Issue issue = 1;
+}
+
+message GetIssueRequest {
+  string id = 1;
+}
+
+message GetIssueResponse {
+  Issue issue = 1;
+}
+
+message ListIssuesRequest {
+  string project_id = 1;
+  string sprint_id = 2;
+  IssueStatus status = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListIssuesResponse {
+  repeated Issue issues = 1;
+  int32 total_count = 2;
+}
+
+message UpdateIssueStatusRequest {
+  string id = 1;
+  IssueStatus status = 2;
+}
+
+message UpdateIssueStatusResponse {
+  Issue issue = 1;
+}
+
+message BatchUpdateIssueSprintRequest {
+  repeated string issue_ids = 1;
+  string sprint_id = 2;
+}
+
+message BatchUpdateIssueSprintResponse {
+  int32 updated_count = 1;
+  repeated Issue issues = 2;
+}
+
+service IssueService {
+  rpc CreateIssue(CreateIssueRequest) returns (CreateIssueResponse);
+  rpc GetIssue(GetIssueRequest) returns (GetIssueResponse);
+  rpc ListIssues(ListIssuesRequest) returns (ListIssuesResponse);
+  rpc UpdateIssueStatus(UpdateIssueStatusRequest) returns (UpdateIssueStatusResponse);
+  rpc BatchUpdateIssueSprint(BatchUpdateIssueSprintRequest) returns (BatchUpdateIssueSprintResponse);
+}
