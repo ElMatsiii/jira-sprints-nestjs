@@ -38,7 +38,7 @@ for (const m of metrics) {
   const metricData = total[m];
   const pct = metricData ? metricData.pct : 0.0;
   const passed = pct >= threshold;
-  const statusStr = passed ? '✅ PASS' : '❌ FAIL';
+  const statusStr = passed ? '[PASS]' : '[FAIL]';
   const label = (m.charAt(0).toUpperCase() + m.slice(1)).padEnd(12);
   console.log(`${label} : ${pct.toFixed(2).padStart(6)}%  ${statusStr}`);
   if (!passed) {
@@ -49,9 +49,9 @@ for (const m of metrics) {
 console.log('------------------------------------------------------------');
 
 if (hasFailure) {
-  console.error(`❌ FAILURE: One or more coverage metrics fall below the required ${threshold.toFixed(1)}% threshold!`);
+  console.error(`[FAILURE] One or more coverage metrics fall below the required ${threshold.toFixed(1)}% threshold!`);
   process.exit(1);
 } else {
-  console.log(`✅ SUCCESS: All coverage metrics satisfy >= ${threshold.toFixed(1)}% threshold!`);
+  console.log(`[SUCCESS] All coverage metrics satisfy >= ${threshold.toFixed(1)}% threshold!`);
   process.exit(0);
 }

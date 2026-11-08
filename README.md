@@ -1,4 +1,4 @@
-# 🔶 MS2: Jira Sprints Service (`jira-sprints-nestjs`)
+# MS2: Jira Sprints Service (`jira-sprints-nestjs`)
 
 [![Node Version](https://img.shields.io/badge/Node-v20+-green.svg?logo=nodedotjs)]()
 [![NestJS](https://img.shields.io/badge/NestJS-v10-ea2849.svg?logo=nestjs)]()
@@ -10,7 +10,7 @@ Microservicio orquestador ágil implementado en **TypeScript** con **NestJS**. A
 
 ---
 
-## 🏛️ Rol en la Arquitectura e Interoperabilidad Híbrida
+## Rol en la Arquitectura e Interoperabilidad Híbrida
 
 Este microservicio ejemplifica de forma directa la **Regla de Interoperabilidad de la Pizarra**:
 
@@ -18,9 +18,9 @@ Este microservicio ejemplifica de forma directa la **Regla de Interoperabilidad 
 sequenceDiagram
     autonumber
     participant BFF as BFF Gateway (GraphQL)
-    participant S2 as 🔶 MS2: Sprints (NestJS :50052)
-    participant S1 as 🔷 MS1: Issues (Go :50051)
-    participant S3 as 🟣 MS3: Analytics (.NET 8 / Kafka)
+    participant S2 as MS2: Sprints (NestJS :50052)
+    participant S1 as MS1: Issues (Go :50051)
+    participant S3 as MS3: Analytics (.NET 8 / Kafka)
 
     BFF->>S2: gRPC: PlanSprint(projectId, capacity)
     Note over S2: Invocación en el protocolo destino de Go (gRPC)
@@ -47,7 +47,7 @@ sequenceDiagram
 
 ---
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```text
 jira-sprints-nestjs/
@@ -83,7 +83,7 @@ jira-sprints-nestjs/
 
 ---
 
-## ⚙️ Variables de Entorno
+## Variables de Entorno
 
 | Variable | Descripción | Valor por Defecto |
 | :--- | :--- | :--- |
@@ -96,7 +96,7 @@ jira-sprints-nestjs/
 
 ---
 
-## 🧪 Pruebas Automatizadas y Cobertura
+## Pruebas Automatizadas y Cobertura
 
 El servicio cuenta con tests unitarios y de integración con mocks completos para gRPC y Kafka:
 
@@ -120,7 +120,7 @@ npm test
 
 ---
 
-## 🐳 Despliegue con Docker
+## Despliegue con Docker
 
 ```bash
 # Compilar la imagen
@@ -136,6 +136,6 @@ docker run -d -p 50052:50052 \
 
 ---
 
-## 📄 Licencia
+## Licencia
 
-MIT License © 2026 Jira AI Team.
+MIT License (c) 2026 Jira AI Team.
