@@ -4,6 +4,7 @@ import { ConfigService } from '../config/config.service';
 import { SprintEntity } from './entities/sprint.entity';
 import { SprintAlertEntity } from './entities/sprint-alert.entity';
 import { SprintIssueEntity } from './entities/sprint-issue.entity';
+import { DatabaseMigrationService } from './database-migration.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SprintIssueEntity } from './entities/sprint-issue.entity';
     }),
     TypeOrmModule.forFeature([SprintEntity, SprintAlertEntity, SprintIssueEntity]),
   ],
+  providers: [DatabaseMigrationService],
   exports: [TypeOrmModule],
 })
 export class DatabaseModule {}

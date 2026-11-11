@@ -5,18 +5,10 @@ on:
     branches:
       - main
       - master
-    paths:
-      - 'jira-sprints-nestjs/**'
-      - 'jira-contracts/**'
-      - '.github/workflows/ci.yml'
   pull_request:
     branches:
       - main
       - master
-    paths:
-      - 'jira-sprints-nestjs/**'
-      - 'jira-contracts/**'
-      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 concurrency:
@@ -35,6 +27,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          path: jira-sprints-nestjs
+
+      - name: Checkout shared contracts
+        run: git clone --depth 1 https://github.com/ElMatsiii/jira-contracts.git ../jira-contracts
 
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
@@ -48,11 +45,11 @@ jobs:
       - name: Build Contracts Stubs
         run: |
           cd ../jira-contracts
-          npm ci || npm install
+          npm ci
           npm run build
 
       - name: Install MS2 Dependencies
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Build NestJS Application
         run: npm run build

@@ -85,6 +85,8 @@ jira-sprints-nestjs/
 
 ## Variables de Entorno
 
+La aplicación lee `GRPC_PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`, `MS1_GRPC_URL` y `KAFKA_BROKERS`. Los nombres heredados `DATABASE_URL` y `GO_ISSUES_GRPC_URL` de la tabla siguiente no son consumidos por el código.
+
 | Variable | Descripción | Valor por Defecto |
 | :--- | :--- | :--- |
 | `GRPC_PORT` | Puerto de escucha gRPC | `50052` |
@@ -99,6 +101,8 @@ jira-sprints-nestjs/
 ## Pruebas Automatizadas y Cobertura
 
 El servicio cuenta con tests unitarios y de integración con mocks completos para gRPC y Kafka:
+
+Las migraciones SQL de `db/migrations/*.up.sql` se aplican transaccionalmente al iniciar el servicio. Las migraciones ya registradas no se vuelven a ejecutar.
 
 ```bash
 # Instalar dependencias

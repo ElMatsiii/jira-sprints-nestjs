@@ -76,7 +76,7 @@ export class SprintService {
 
     const now = Date.now();
     const entity = new SprintEntity();
-    entity.id = `sprint-${uuidv4()}`;
+    entity.id = uuidv4();
     entity.projectId = projectId;
     entity.name = name;
     entity.goal = goal;

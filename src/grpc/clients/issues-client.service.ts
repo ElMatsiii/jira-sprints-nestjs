@@ -1,9 +1,9 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Optional } from '@nestjs/common';
-import * as grpc from '@grpc/grpc-js';
 import { firstValueFrom, isObservable, Observable } from 'rxjs';
 import { ConfigService } from '../../config/config.service';
 import { CircuitBreaker } from '../../common/utils/circuit-breaker';
 import { IIssuesClient, IssueDto, BatchUpdateResultDto } from '../interfaces/issues-client.interface';
+import { createGrpcMetadata, createInsecureGrpcCredentials } from 'jira-contracts';
 import { IssueServiceClient } from 'jira-contracts/gen/ts';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
     try {
       this.client = new IssueServiceClient(
         targetUrl,
-        grpc.credentials.createInsecure(),
+        createInsecureGrpcCredentials(),
         {
           'grpc.keepalive_time_ms': 30000,
           'grpc.keepalive_timeout_ms': 5000,
@@ -81,7 +81,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
         const request = { sprintId: sprintId, sprint_id: sprintId, limit: 1000, offset: 0, status: 0, projectId: '' };
 
         return await new Promise<IssueDto[]>((resolve, reject) => {
-          const metadata = new grpc.Metadata();
+          const metadata = createGrpcMetadata();
           const deadline = new Date(Date.now() + 5000);
 
           try {
@@ -143,7 +143,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
         const request = { issueIds, issue_ids: issueIds, sprintId, sprint_id: sprintId };
 
         return await new Promise<BatchUpdateResultDto>((resolve, reject) => {
-          const metadata = new grpc.Metadata();
+          const metadata = createGrpcMetadata();
           const deadline = new Date(Date.now() + 5000);
 
           try {

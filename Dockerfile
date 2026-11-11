@@ -17,11 +17,11 @@ COPY jira-sprints-nestjs /workspace/jira-sprints-nestjs
 
 # Build contracts first so TypeScript definitions and stubs exist
 WORKDIR /workspace/jira-contracts
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 # Install dependencies and compile NestJS
 WORKDIR /workspace/jira-sprints-nestjs
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 # ------------------------------------------------------------------------------
@@ -41,6 +41,7 @@ ENV NODE_ENV=production \
     DB_NAME=sprints_db \
     KAFKA_BROKERS=kafka:9092 \
     MS1_GRPC_URL=jira-issues-go:50051 \
+    MIGRATIONS_DIR=/app/db/migrations \
     PROTO_PATH=/app/protos/sprints.proto
 
 # Install ca-certificates and tzdata
@@ -51,10 +52,11 @@ COPY --from=builder /workspace/jira-sprints-nestjs/package*.json /app/
 COPY --from=builder /workspace/jira-contracts /jira-contracts
 
 # Install production dependencies only
-RUN npm install --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts
 
 # Copy compiled JavaScript output
 COPY --from=builder /workspace/jira-sprints-nestjs/dist /app/dist
+COPY --from=builder /workspace/jira-sprints-nestjs/db/migrations /app/db/migrations
 
 # Copy Proto files to /app/protos so gRPC proto-loader can load them at runtime
 COPY --from=builder /workspace/jira-contracts/protos /app/protos
