@@ -14,7 +14,6 @@ import {
   ActiveSprintExistsException,
   ServiceUnavailableException,
 } from '../src/common/exceptions/domain.exceptions';
-import { IssueStatus } from 'jira-contracts/gen/ts';
 
 describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
   let exceptionFilter: GrpcExceptionFilter;
@@ -472,20 +471,20 @@ describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
       const sprint = createActiveSprint('sprint-full-status-mix');
       mockRepo.findOneBy.mockResolvedValue(sprint);
 
-      // Issues across all statuses in protobuf contract:
-      // Status 4 = DONE (completed, 8 pts)
-      // Status 'DONE' = DONE string representation (completed, 5 pts)
-      // Status 3 = IN_REVIEW (unfinished, 3 pts)
-      // Status 2 = IN_PROGRESS (unfinished, 2 pts)
-      // Status 1 = TODO (unfinished, 1 pt)
-      // Status 0 = UNSPECIFIED (unfinished, 0 pts)
+      // Issues across all statuses, as the MS1 client returns them (MS2 local model):
+      // DONE (completed, 8 pts)
+      // DONE (completed, 5 pts)
+      // IN_REVIEW (unfinished, 3 pts)
+      // IN_PROGRESS (unfinished, 2 pts)
+      // TODO (unfinished, 1 pt)
+      // UNKNOWN (unfinished, 0 pts)
       const issues = [
-        { id: 'i-done-num', status: 4, storyPoints: 8 },
+        { id: 'i-done-num', status: 'DONE', storyPoints: 8 },
         { id: 'i-done-str', status: 'DONE', storyPoints: 5 },
-        { id: 'i-in-review', status: 3, storyPoints: 3 },
-        { id: 'i-in-progress', status: 2, storyPoints: 2 },
-        { id: 'i-todo', status: 1, storyPoints: 1 },
-        { id: 'i-unspecified', status: 0, storyPoints: 0 },
+        { id: 'i-in-review', status: 'IN_REVIEW', storyPoints: 3 },
+        { id: 'i-in-progress', status: 'IN_PROGRESS', storyPoints: 2 },
+        { id: 'i-todo', status: 'TODO', storyPoints: 1 },
+        { id: 'i-unspecified', status: 'UNKNOWN', storyPoints: 0 },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(issues);
 
@@ -517,8 +516,8 @@ describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
       mockRepo.findOneBy.mockResolvedValue(sprint);
 
       const allDoneIssues = [
-        { id: 'd-1', status: 4, storyPoints: 10 },
-        { id: 'd-2', status: IssueStatus.ISSUE_STATUS_DONE, storyPoints: 20 },
+        { id: 'd-1', status: 'DONE', storyPoints: 10 },
+        { id: 'd-2', status: 'DONE', storyPoints: 20 },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(allDoneIssues);
 
@@ -536,8 +535,8 @@ describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
       mockRepo.findOneBy.mockResolvedValue(sprint);
 
       const unfinishedIssues = [
-        { id: 'u-1', status: 1, storyPoints: 5 },
-        { id: 'u-2', status: 2, storyPoints: 7 },
+        { id: 'u-1', status: 'TODO', storyPoints: 5 },
+        { id: 'u-2', status: 'IN_PROGRESS', storyPoints: 7 },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(unfinishedIssues);
 
@@ -568,7 +567,7 @@ describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
       mockRepo.findOneBy.mockResolvedValue(sprint);
 
       mockIssuesClient.listIssuesBySprint.mockResolvedValue([
-        { id: 'iss-1', status: 1, storyPoints: 5 },
+        { id: 'iss-1', status: 'TODO', storyPoints: 5 },
       ]);
       mockIssuesClient.removeIssuesFromSprint.mockRejectedValue(new Error('MS1 gRPC Timeout'));
 
@@ -700,8 +699,8 @@ describe('Adversarial Sprint Invariants Stress Harness (Iteration 2)', () => {
       mockIssueStub.listIssues.mockReturnValue(
         of({
           issues: [
-            { id: 'done-card-1', status: 4, storyPoints: 8 },
-            { id: 'wip-card-2', status: 2, storyPoints: 5 },
+            { id: 'done-card-1', status: 'DONE', storyPoints: 8 },
+            { id: 'wip-card-2', status: 'IN_PROGRESS', storyPoints: 5 },
           ],
         }),
       );

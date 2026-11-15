@@ -375,9 +375,9 @@ describe('Sprint Lifecycle Adversarial Challenge Suite', () => {
       // Issue 2: status = 2 (IN_PROGRESS), 3 story points
       // Issue 3: status = 1 (TODO), 2 story points
       const mixedIssues = [
-        { id: 'issue-done-1', status: 4, storyPoints: 5, sprintId: 'sprint-mixed-issues' },
-        { id: 'issue-prog-2', status: 2, storyPoints: 3, sprintId: 'sprint-mixed-issues' },
-        { id: 'issue-todo-3', status: 1, storyPoints: 2, sprintId: 'sprint-mixed-issues' },
+        { id: 'issue-done-1', status: 'DONE', storyPoints: 5, sprintId: 'sprint-mixed-issues' },
+        { id: 'issue-prog-2', status: 'IN_PROGRESS', storyPoints: 3, sprintId: 'sprint-mixed-issues' },
+        { id: 'issue-todo-3', status: 'TODO', storyPoints: 2, sprintId: 'sprint-mixed-issues' },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(mixedIssues);
 
@@ -418,8 +418,8 @@ describe('Sprint Lifecycle Adversarial Challenge Suite', () => {
       mockRepo.findOneBy.mockResolvedValue(activeSprint);
 
       const allDoneIssues = [
-        { id: 'issue-done-1', status: 4, storyPoints: 5 },
-        { id: 'issue-done-2', status: 4, storyPoints: 8 },
+        { id: 'issue-done-1', status: 'DONE', storyPoints: 5 },
+        { id: 'issue-done-2', status: 'DONE', storyPoints: 8 },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(allDoneIssues);
 
@@ -471,8 +471,8 @@ describe('Sprint Lifecycle Adversarial Challenge Suite', () => {
       mockRepo.findOneBy.mockResolvedValue(activeSprint);
 
       const issuesWithUnfinished = [
-        { id: 'issue-1', status: 4, storyPoints: 5 },
-        { id: 'issue-2', status: 1, storyPoints: 3 },
+        { id: 'issue-1', status: 'DONE', storyPoints: 5 },
+        { id: 'issue-2', status: 'TODO', storyPoints: 3 },
       ];
       mockIssuesClient.listIssuesBySprint.mockResolvedValue(issuesWithUnfinished);
       mockIssuesClient.removeIssuesFromSprint.mockRejectedValue(new Error('gRPC DEADLINE_EXCEEDED on MS1'));
