@@ -147,7 +147,7 @@ export class SprintService {
 
     const sprint = await this.getSprint(sprintId);
 
-    if (sprint.status !== SprintStatusEnum.PLANNED && (sprint.status as any) !== SprintStatus.SPRINT_STATUS_PLANNED) {
+    if (sprint.status !== SprintStatusEnum.PLANNED) {
       throw new InvalidSprintStateException(
         `Cannot start sprint "${sprintId}" in status "${sprint.status}"`,
       );
@@ -203,7 +203,7 @@ export class SprintService {
 
     const sprint = await this.getSprint(sprintId);
 
-    if (sprint.status !== SprintStatusEnum.ACTIVE && (sprint.status as any) !== SprintStatus.SPRINT_STATUS_ACTIVE) {
+    if (sprint.status !== SprintStatusEnum.ACTIVE) {
       throw new InvalidSprintStateException(
         `Cannot complete sprint "${sprintId}" in status "${sprint.status}"`,
       );
