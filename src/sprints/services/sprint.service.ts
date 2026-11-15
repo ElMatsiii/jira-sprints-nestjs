@@ -3,9 +3,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { SprintEntity, SprintStatusEnum } from '../entities/sprint.entity';
 import { ISprintRepository } from '../repositories/sprint.repository.interface';
-import { IIssuesClient } from '../../grpc/interfaces/issues-client.interface';
+import { IIssuesClient, IssueDto } from '../../grpc/interfaces/issues-client.interface';
 import { IssuesGrpcClient } from '../../grpc/clients/issues-client.service';
-import { SprintStatus, IssueStatus } from 'jira-contracts/gen/ts';
+import { SprintStatus } from 'jira-contracts/gen/ts';
 import {
   SprintNotFoundException,
   ActiveSprintExistsException,
@@ -147,7 +147,7 @@ export class SprintService {
 
     const sprint = await this.getSprint(sprintId);
 
-    if (sprint.status !== SprintStatusEnum.PLANNED && (sprint.status as any) !== SprintStatus.SPRINT_STATUS_PLANNED) {
+    if (sprint.status !== SprintStatusEnum.PLANNED) {
       throw new InvalidSprintStateException(
         `Cannot start sprint "${sprintId}" in status "${sprint.status}"`,
       );
@@ -160,7 +160,7 @@ export class SprintService {
     }
 
     // Query MS1 for attached issues
-    let issues: any[] = [];
+    let issues: IssueDto[] = [];
     if (this.client) {
       try {
         issues = (await this.client.listIssuesBySprint(sprint.id)) || [];
@@ -171,7 +171,7 @@ export class SprintService {
     }
 
     const totalPoints = issues.reduce(
-      (sum, item) => sum + Math.max(0, Number(item.storyPoints || item.story_points || 0)),
+      (sum, issue) => sum + Math.max(0, issue.storyPoints),
       0,
     );
 
@@ -203,14 +203,14 @@ export class SprintService {
 
     const sprint = await this.getSprint(sprintId);
 
-    if (sprint.status !== SprintStatusEnum.ACTIVE && (sprint.status as any) !== SprintStatus.SPRINT_STATUS_ACTIVE) {
+    if (sprint.status !== SprintStatusEnum.ACTIVE) {
       throw new InvalidSprintStateException(
         `Cannot complete sprint "${sprintId}" in status "${sprint.status}"`,
       );
     }
 
     // Query MS1 for attached issues
-    let issues: any[] = [];
+    let issues: IssueDto[] = [];
     if (this.client) {
       try {
         issues = (await this.client.listIssuesBySprint(sprint.id)) || [];
@@ -220,18 +220,16 @@ export class SprintService {
       }
     }
 
-    const isDone = (item: any) => {
-      const s = item.status;
-      return s === IssueStatus.ISSUE_STATUS_DONE || s === 4 || s === 'DONE';
-    };
+    // MS1 issues arrive already converted to MS2's model (grpc/mappers/issue.mapper.ts).
+    const isDone = (issue: IssueDto) => issue.status === 'DONE';
 
     const doneIssues = issues.filter(isDone);
     const completedPoints = doneIssues.reduce(
-      (sum, item) => sum + Math.max(0, Number(item.storyPoints || item.story_points || 0)),
+      (sum, issue) => sum + Math.max(0, issue.storyPoints),
       0,
     );
     const totalPoints = issues.reduce(
-      (sum, item) => sum + Math.max(0, Number(item.storyPoints || item.story_points || 0)),
+      (sum, issue) => sum + Math.max(0, issue.storyPoints),
       0,
     );
 

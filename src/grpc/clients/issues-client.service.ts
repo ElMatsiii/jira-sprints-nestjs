@@ -5,6 +5,7 @@ import { CircuitBreaker } from '../../common/utils/circuit-breaker';
 import { IIssuesClient, IssueDto, BatchUpdateResultDto } from '../interfaces/issues-client.interface';
 import { createGrpcMetadata, createInsecureGrpcCredentials } from 'jira-contracts';
 import { IssueServiceClient } from 'jira-contracts/gen/ts';
+import { toLocalIssue } from '../mappers/issue.mapper';
 
 @Injectable()
 export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssuesClient {
@@ -74,7 +75,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
           const res = this.client.listIssues({ sprintId });
           if (isObservable(res)) {
             const result = await firstValueFrom(res as Observable<any>);
-            return (result?.issues || []).map(this.mapProtoIssue);
+            return (result?.issues || []).map(toLocalIssue);
           }
         }
 
@@ -87,14 +88,14 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
           try {
             const res = this.client.listIssues(request, metadata, { deadline }, (err: any, response: any) => {
               if (err) return reject(err);
-              const issues = (response?.issues || []).map(this.mapProtoIssue);
+              const issues = (response?.issues || []).map(toLocalIssue);
               resolve(issues);
             });
 
             if (isObservable(res)) {
               firstValueFrom(res as Observable<any>).then(
                 (result: any) => {
-                  const issues = (result?.issues || []).map(this.mapProtoIssue);
+                  const issues = (result?.issues || []).map(toLocalIssue);
                   resolve(issues);
                 },
                 (err: any) => reject(err),
@@ -135,7 +136,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
             const result = await firstValueFrom(res as Observable<any>);
             return {
               updatedCount: result?.updatedCount ?? result?.updated_count ?? 0,
-              issues: (result?.issues || []).map(this.mapProtoIssue),
+              issues: (result?.issues || []).map(toLocalIssue),
             };
           }
         }
@@ -151,7 +152,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
               if (err) return reject(err);
               resolve({
                 updatedCount: response?.updatedCount ?? response?.updated_count ?? 0,
-                issues: (response?.issues || []).map(this.mapProtoIssue),
+                issues: (response?.issues || []).map(toLocalIssue),
               });
             });
 
@@ -160,7 +161,7 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
                 (result: any) => {
                   resolve({
                     updatedCount: result?.updatedCount ?? result?.updated_count ?? 0,
-                    issues: (result?.issues || []).map(this.mapProtoIssue),
+                    issues: (result?.issues || []).map(toLocalIssue),
                   });
                 },
                 (err: any) => reject(err),
@@ -194,20 +195,6 @@ export class IssuesClientService implements OnModuleInit, OnModuleDestroy, IIssu
     return result.updatedCount;
   }
 
-  private mapProtoIssue(item: any): IssueDto {
-    return {
-      id: item.id || '',
-      key: item.key || '',
-      projectId: item.projectId || item.project_id || '',
-      title: item.title || '',
-      description: item.description || '',
-      status: Number(item.status || 0),
-      priority: Number(item.priority || 0),
-      type: Number(item.type || 0),
-      storyPoints: Math.max(0, Number(item.storyPoints || item.story_points || 0)),
-      sprintId: item.sprintId || item.sprint_id || undefined,
-    };
-  }
 }
 
 /**

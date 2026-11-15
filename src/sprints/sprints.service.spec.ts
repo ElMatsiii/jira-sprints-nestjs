@@ -197,8 +197,8 @@ describe('SprintsService', () => {
       sprintRepo.findOneBy.mockResolvedValue(activeSprint);
 
       issuesClient.listIssuesBySprint.mockResolvedValue([
-        { id: 'issue-1', status: 4, storyPoints: 5 },
-        { id: 'issue-2', status: 2, storyPoints: 3 },
+        { id: 'issue-1', status: 'DONE', storyPoints: 5 },
+        { id: 'issue-2', status: 'IN_PROGRESS', storyPoints: 3 },
       ]);
 
       const result = await service.completeSprint('sprint-1');

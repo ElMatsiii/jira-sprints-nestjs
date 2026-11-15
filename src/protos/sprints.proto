@@ -39,6 +39,8 @@ message Sprint {
   int32 completed_story_points = 9;
   int64 created_at = 10;
   int64 updated_at = 11;
+  // Planned capacity in story points; 0 means not defined.
+  int32 capacity_story_points = 12;
 }
 
 message CreateSprintRequest {
@@ -47,6 +49,8 @@ message CreateSprintRequest {
   string goal = 3;
   int64 start_date = 4;
   int64 end_date = 5;
+  // Optional planned capacity in story points; 0 means not defined.
+  int32 capacity_story_points = 6;
 }
 
 message CreateSprintResponse {

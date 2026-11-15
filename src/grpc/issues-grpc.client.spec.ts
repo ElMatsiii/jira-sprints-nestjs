@@ -28,6 +28,8 @@ describe('IssuesGrpcClient', () => {
     const issues = await client.listIssuesBySprint('sprint-1');
     expect(issues).toHaveLength(2);
     expect(issues[0].key).toBe('PROJ-1');
+    // MS1's numeric proto enums are converted to MS2's local model at the client edge.
+    expect(issues.map((i) => i.status)).toEqual(['TODO', 'DONE']);
     expect(mockIssueServiceStub.listIssues).toHaveBeenCalledWith(
       expect.objectContaining({ sprintId: 'sprint-1' }),
     );
