@@ -47,6 +47,8 @@ message Issue {
   int64 updated_at = 15;
   // Parent epic of this issue; empty when the issue has no parent.
   string parent_id = 16;
+  // Name of the user in reporter_id (who created the issue), filled by MS1; empty when unknown.
+  string reporter_name = 17;
 }
 
 message CreateIssueRequest {
@@ -121,7 +123,8 @@ service IssueService {
 // Timestamps are Unix epoch milliseconds, as in Issue.
 // Errors: INVALID_ARGUMENT (bad input), ALREADY_EXISTS (duplicate email/key),
 // UNAUTHENTICATED (wrong credentials), PERMISSION_DENIED (role not allowed),
-// NOT_FOUND (unknown user, workspace, project or issue).
+// NOT_FOUND (unknown user, workspace, project or issue),
+// FAILED_PRECONDITION (operation not allowed on that member, e.g. removing the OWNER).
 // ============================================================================
 
 enum WorkspaceRole {
@@ -242,6 +245,7 @@ message CreateProjectResponse {
 }
 
 // The requester must be a member of the workspace. Newest projects first.
+// OWNER and ADMIN get every project of the workspace; a MEMBER only the projects it was added to.
 message ListProjectsRequest {
   string requester_id = 1;
   string workspace_id = 2;
@@ -256,17 +260,66 @@ message CheckProjectAccessRequest {
   string project_id = 2;
 }
 
-// allowed is false (not an error) when the user is not a member of the project's workspace.
+// allowed is true for the OWNER and ADMINs of the project's workspace, and for MEMBERs added to
+// the project (AddProjectMember). Otherwise allowed is false (not an error) and the other fields are empty.
 message CheckProjectAccessResponse {
   bool allowed = 1;
   WorkspaceRole role = 2;
   string workspace_id = 3;
 }
 
+// Someone with access to a project.
+message ProjectMember {
+  User user = 1;
+  // Role in the project's workspace.
+  WorkspaceRole role = 2;
+  // true when the access comes from AddProjectMember (it can be removed); false for the OWNER and
+  // ADMINs, who reach every project of the workspace through their role.
+  bool invited = 3;
+}
+
+// Gives an existing user (by email) access to one project. The requester must be OWNER or ADMIN of
+// the project's workspace. A user that is not yet in the workspace joins it as MEMBER.
+// Adding someone who already has access is not an error: the current member is returned.
+message AddProjectMemberRequest {
+  string requester_id = 1;
+  string project_id = 2;
+  string member_email = 3;
+}
+
+message AddProjectMemberResponse {
+  ProjectMember member = 1;
+}
+
+// The requester must have access to the project. OWNER first, then ADMINs, then invited members,
+// each group by name.
+message ListProjectMembersRequest {
+  string requester_id = 1;
+  string project_id = 2;
+}
+
+message ListProjectMembersResponse {
+  repeated ProjectMember members = 1;
+}
+
+// Removes a MEMBER's access to one project (the user stays in the workspace). The requester must be
+// OWNER or ADMIN of the project's workspace. NOT_FOUND when the user was not added to the project;
+// FAILED_PRECONDITION for the OWNER or an ADMIN, whose access comes from their workspace role.
+message RemoveProjectMemberRequest {
+  string requester_id = 1;
+  string project_id = 2;
+  string user_id = 3;
+}
+
+message RemoveProjectMemberResponse {}
+
 service ProjectService {
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
   rpc CheckProjectAccess(CheckProjectAccessRequest) returns (CheckProjectAccessResponse);
+  rpc AddProjectMember(AddProjectMemberRequest) returns (AddProjectMemberResponse);
+  rpc ListProjectMembers(ListProjectMembersRequest) returns (ListProjectMembersResponse);
+  rpc RemoveProjectMember(RemoveProjectMemberRequest) returns (RemoveProjectMemberResponse);
 }
 
 // ============================================================================
@@ -306,11 +359,14 @@ message ListWorkLogsRequest {
   string requester_id = 1;
   string project_id = 2;
   int32 limit = 3;
+  // Optional: only the entries of this issue (it must belong to project_id); total_hours is then
+  // the issue's total. Empty means the whole project.
+  string issue_id = 4;
 }
 
 message ListWorkLogsResponse {
   repeated WorkLog entries = 1;
-  // Sum of all the project's hours, not only the listed entries.
+  // Sum of all the project's hours (or the issue's, with issue_id), not only the listed entries.
   double total_hours = 2;
 }
 
